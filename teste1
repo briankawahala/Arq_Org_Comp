@@ -1,0 +1,67 @@
+; <sistema de alarme>
+
+input_inicial: in 01h
+mov b,a
+in 00h
+cmp b
+jz faz_nada
+cpi 00h
+jz desliga
+jmp guarda_estado
+
+continua: mvi a,80h
+sta 4400h
+sta 6600h
+mvi a,00h
+sta 5500h
+sta 3300h
+sta 2200h
+
+output: lda 4400h
+out 0Dh
+lda 5500h
+out 0Bh
+lda 3300h
+out 0Ch
+lda 6600h
+out 0Eh
+lda 2200h
+out 0Fh
+hlt
+
+confere: in 02h
+sta 2200h
+mov b,a
+in 03h
+sta 3300h
+ora b
+cpi 80h
+jz dispara
+jmp continua
+
+dispara: mvi a,00h
+sta 6600h
+sta 4400h
+jmp output
+
+desliga: mvi a,80h
+sta 1100h
+sta 6600h
+sta 4400h
+jmp output
+
+faz_nada: hlt
+
+guarda_estado: lda 1100h
+cpi 00h
+jz confere
+in 03h
+sta 3300h
+in 02h
+sta 2200h
+cpi 80h
+jz output
+mvi a,00h
+sta 1100h
+jmp continua
+
